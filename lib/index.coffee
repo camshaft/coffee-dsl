@@ -3,9 +3,11 @@ coffee = require "coffee-script"
 _ = require "underscore"
 
 parse = (str, options)->
+  # We'll need to find out if we can set what gets put in .call(this).
+  # It needs to be .call(locals)
   str = """
   return (()->
-    #{str.replace('\n','\n\t')}
+    #{replaceAll(str,"\n", "\n  ")}
   ).call(locals)
   """
   js = coffee.compile str, bare: true
@@ -64,3 +66,15 @@ exports.dsl = (defaults = {})->
     template.locals[key] = value
 
   template
+
+# http://fagnerbrack.com/en/2012/03/27/javascript-replaceall/
+# Faster than str.replace
+replaceAll = (str, token, newToken, ignoreCase) ->
+  i = -1
+  _token = undefined
+  if typeof token is "string"
+    _token = (if ignoreCase is true then token.toLowerCase() else `undefined`)
+    str = str.substring(0, i)
+             .concat(newToken)
+             .concat(str.substring(i + token.length)) while (i = ((if _token isnt `undefined` then str.toLowerCase().indexOf(_token, (if i >= 0 then i + newToken.length else 0)) else str.indexOf(token, (if i >= 0 then i + newToken.length else 0))))) isnt -1
+  str
