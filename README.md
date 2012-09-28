@@ -1,4 +1,4 @@
-CoffeeScript DSL View Engine
+CoffeeScript DSL View Engine [![Build Status](https://secure.travis-ci.org/CamShaft/coffee-dsl.png)](http://travis-ci.org/CamShaft/coffee-dsl)
 ============================
 
 Want to make an awesome view engine in CoffeeScript? Try this:
