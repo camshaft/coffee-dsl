@@ -1,6 +1,5 @@
 fs = require "fs"
 coffee = require "coffee-script"
-_ = require "underscore"
 
 parse = (str, options)->
   # We'll need to find out if we can set what gets put in .call(this).
@@ -8,24 +7,23 @@ parse = (str, options)->
   str = """
   return (()->
     #{replaceAll(str,"\n", "\n  ")}
-  ).call(locals)
+  ).call(helpers)
   """
   js = coffee.compile str, bare: true
   "with (locals || {}) {\n#{js}\n}"
 
-exports.dsl = (defaults = {})->
+exports.dsl = (defaultHelpers = {})->
   template = {}
-
+  template.helpers = defaultHelpers
   template.cache = {}
-  template.locals = defaults
 
   template.compile = (str, options={})->
     fn = parse str, options
 
-    fn = new Function 'locals', fn
+    fn = new Function 'helpers', 'locals', fn
 
     (locals)->
-      fn(locals)
+      fn(template.helpers, locals)
 
   template.render = (str, options, fn)->
     if typeof options is 'function'
@@ -40,7 +38,7 @@ exports.dsl = (defaults = {})->
       tmpl = if options.cache\
         then template.cache[path] or (template.cache[path] = template.compile(str, options))\
         else template.compile str, options
-      fn null, tmpl _.extend template.locals, options
+      fn null, tmpl options
     catch e
       fn e
 
@@ -63,7 +61,7 @@ exports.dsl = (defaults = {})->
   template.__express = template.renderFile
 
   template.set = (key, value)->
-    template.locals[key] = value
+    template.helpers[key] = value
 
   template
 

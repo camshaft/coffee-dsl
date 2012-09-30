@@ -18,7 +18,6 @@ module.exports = myDSL
 
 ```coffee
 # my-view.coffee
-
 @root ->
   @hello "World"
 ```
